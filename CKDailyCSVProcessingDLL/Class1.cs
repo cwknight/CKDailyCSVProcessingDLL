@@ -69,5 +69,39 @@ namespace CKDailyCSVProcessingDLL
             }
 
         }
+        public ShippingManagementDataCSV(string filepath, string filepath1)
+        {
+            CKDailyRecord workingRecord;
+            List<OutputRecord> OutputList = new List<OutputRecord>();
+            string[] files = Directory.GetFiles(filepath);
+            foreach (string file in files)
+            {
+                DateTime fileDate;
+                string filedate = file.Substring(file.Length - 14);
+                string year = filedate.Substring(0, 4);
+                string month = filedate.Substring(5, 2);
+                string day = filedate.Substring(8, 2);
+                fileDate = new DateTime(int.Parse(year), int.Parse(month), int.Parse(day));
+                CsvReader reader;
+                OutputRecord outrec = new OutputRecord();
+                using (StreamReader sreader = new StreamReader(file))
+                {
+                    reader = new CsvReader(sreader);
+                    reader.Read();
+                    workingRecord = reader.GetRecord<CKDailyRecord>();
+                    outrec.Subtotal = workingRecord.Subtotal;
+                    outrec.Shipping = workingRecord.Shipping;
+                    outrec.Date = fileDate;
+                    OutputList.Add(outrec);
+                }
+
+            }
+            using (StreamWriter writer = new StreamWriter(filepath1))
+            {
+                CsvWriter csv = new CsvWriter(writer);
+                csv.WriteRecords(OutputList);
+            }
+
+        }
     }
 }
